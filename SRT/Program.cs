@@ -8,9 +8,18 @@ public class Program {
     public static void Main(string[] args)
     { 
         var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
-
+        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+    //   builder.Services.AddCors(options =>
+    //   {
+    //       options.AddPolicy(name: MyAllowSpecificOrigins,
+    //                         policy =>
+    //                         {
+    //                             policy.WithOrigins("http://localhost:4200"
+    //                                                ).AllowAnyMethod()
+    //.AllowCredentials()
+    //.AllowAnyHeader();
+    //                         });
+    //   });
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -25,9 +34,8 @@ public class Program {
         builder.Services.AddTransient(typeof(ILocationDictionaryRepository), typeof(LocationDictionaryRepository));
         builder.Services.AddTransient(typeof(IReservationRepository), typeof(ReservationRepository));
         builder.Services.AddTransient(typeof(ITrainingRepository), typeof(TrainingRepository));
+        builder.Services.AddTransient(typeof(IUserRepository), typeof(UserRepository));
         builder.Services.AddControllers();
-  
-        //builder.Services.AddDbContext<DataContext>();
 
 
         var app = builder.Build();
@@ -38,10 +46,15 @@ public class Program {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseCors(c => c.WithOrigins(new string[] { "http://localhost:4200" })
+    .AllowAnyMethod()
+    .AllowCredentials()
+    .AllowAnyHeader());
+      //  app.UseCors(MyAllowSpecificOrigins);
 
         app.UseHttpsRedirection();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
 
         app.MapControllers();
 

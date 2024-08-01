@@ -15,9 +15,10 @@ namespace SRT.Commands
         public int? BeforStartTimeInHour { get; set; }
         public int? Summary { get; set; }
         public int? NumberPeople { get; set; }
+
         [Precision(18, 2)]
         public decimal FixedCosts { get; set; } = 0m;
-        public int? WhenCloseTraining { get; set; }
+        public int? WhenCloseTraining { get; set; }= 2;
         public int? LocationId { get; set; }
         public int? Type { get; set; }
         public string? AdditionalInformation { get; set; }

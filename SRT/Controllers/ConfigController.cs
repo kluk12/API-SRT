@@ -6,7 +6,6 @@ using SRT.DBModels;
 
 namespace SRT.Controllers
 {
-    [Produces("application/json")]
     [ApiController]
     [Route("[controller]/[action]")]
     public class ConfigController : ControllerBase
