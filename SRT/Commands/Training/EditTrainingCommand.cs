@@ -10,18 +10,14 @@ namespace SRT.Commands
     public class EditTrainingCommand : IRequest<Training>
     {
         public int Id { get; set; }
-        public decimal Price { get; set; } = 0m;
+        public decimal Price { get; set; } = 20;
         public DateTime? DateTo { get; set; }
         public DateTime? DateFrom { get; set; }
-        public int? BeforStartTimeInHour { get; set; }
-        public int? Summary { get; set; }
+        public int? BeforStartTimeInHour { get; set; } = 72;
         public int? NumberPeople { get; set; }
-        public decimal FixedCosts { get; set; } = 0m;
-        public int? WhenCloseTraining { get; set; }
         public int? LocationId { get; set; }
         public int? Type { get; set; }
         public string? AdditionalInformation { get; set; }
-        public int? GeneratorId { get; set; }
 
 
     }
@@ -51,14 +47,10 @@ namespace SRT.Commands
                 item.BeforStartTimeInHour = request.BeforStartTimeInHour;
                 item.DateFrom = request.DateFrom;
                 item.DateTo = request.DateTo;
-                item.FixedCosts = request.FixedCosts;
                 item.Price = request.Price;
-                item.Summary = request.Summary;
-                item.WhenCloseTraining = request.WhenCloseTraining;
                 item.LocationId = request.LocationId;
                 item.Type = request.Type;
                 item.AdditionalInformation = request.AdditionalInformation;
-                item.GeneratorId = request.GeneratorId;
 
                 await _TrainingRepository.Update(item);
                 return item;

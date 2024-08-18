@@ -24,4 +24,10 @@ namespace SRT.DBModels
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 
     }
+    public class TrainingWeek
+    {
+        public List<Training> CurrentWeekItems { get; set; }
+        public List<Training> NextWeekItems { get; set; }
+    }
+   
 }
