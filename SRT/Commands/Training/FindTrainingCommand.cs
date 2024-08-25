@@ -1,40 +1,31 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using SRT.DBModels;
 using SRT.DBModels.Interface;
-using SRT.DBModels.Repos;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SRT.Commands
 {
-    public class FindTrainingCommand : IRequest<TrainingWeek>
+    public class FindTrainingCommand : IRequest<FindTrainingsDto>
     {
-        //public int Id { get; set; }
-        //public decimal Price { get; set; } = 0;
-        //public DateTime? DateTo { get; set; }
-        //public DateTime? DateFrom { get; set; }
-        //public int? BeforStartTimeInHour { get; set; }
-        //public int? Summary { get; set; }
-        //public decimal FixedCosts { get; set; } = 0;
-        //public int? WhenCloseTraining { get; set; }
-
     }
 
-    public class FindTrainingCommandHandler : IRequestHandler<FindTrainingCommand, TrainingWeek>
+    public class FindTrainingCommandHandler : IRequestHandler<FindTrainingCommand, FindTrainingsDto>
     {
         private readonly ITrainingRepository _TrainingRepository;
 
-        public FindTrainingCommandHandler(ITrainingRepository _trainingRepository)
+        public FindTrainingCommandHandler(ITrainingRepository trainingRepository)
         {
-            _TrainingRepository = _trainingRepository;
+            _TrainingRepository = trainingRepository;
         }
 
-        public async Task<TrainingWeek> Handle(FindTrainingCommand request, CancellationToken cancellationToken)
+        public async Task<FindTrainingsDto> Handle(FindTrainingCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                TrainingWeek trainingWeek = new TrainingWeek();
-                var startOfWeek = StartOfWeek(DateTime.Now,DayOfWeek.Monday); // Zakładamy, że tydzień zaczyna się w poniedziałek
+                var startOfWeek = StartOfWeek(DateTime.Now, DayOfWeek.Monday);
                 var endOfWeek = startOfWeek.AddDays(7).AddSeconds(-1);
 
                 var currentWeekItems = await _TrainingRepository.Find()
@@ -42,52 +33,78 @@ namespace SRT.Commands
                                 x.DateFrom.Value >= startOfWeek && x.DateTo.Value <= endOfWeek)
                     .ToListAsync();
 
-                var startOfNextWeek = startOfWeek.AddDays(7); // Następny tydzień zaczyna się po zakończeniu bieżącego tygodnia
-                var endOfNextWeek = startOfNextWeek.AddDays(7).AddSeconds(-1);
+                var nextWeekStart = endOfWeek.AddSeconds(1);
+                var nextWeekEnd = nextWeekStart.AddDays(7).AddSeconds(-1);
 
                 var nextWeekItems = await _TrainingRepository.Find()
                     .Where(x => x.DateFrom.HasValue && x.DateTo.HasValue &&
-                                x.DateFrom.Value >= startOfNextWeek && x.DateTo.Value <= endOfNextWeek)
+                                x.DateFrom.Value >= nextWeekStart && x.DateTo.Value <= nextWeekEnd)
                     .ToListAsync();
-                trainingWeek.CurrentWeekItems = currentWeekItems;
-                trainingWeek.NextWeekItems = nextWeekItems;
-                //todo group by day
-                // Grupowanie po godzinie z DateFrom
 
+                var currentWeekHours = GroupTrainingsByHourAndDay(currentWeekItems);
+                var nextWeekHours = GroupTrainingsByHourAndDay(nextWeekItems);
 
-                // Grupa godzin, do której przypiszemy treningi
-                var groupedActivities = currentWeekItems
-       .Where(x => x.DateFrom.HasValue) // Pomijamy elementy, gdzie DateFrom jest null
-       .GroupBy(x => new
-       {
-           Hour = x.DateFrom.Value.Hour, // Grupujemy po godzinie
-           NextHour = x.DateFrom.Value.Hour + 1 // Dodajemy 1 do godziny dla przedziału godzinowego
-       })
-       .Select(g => new
-       {
-           Time = $"{g.Key.Hour}-{g.Key.NextHour}", // Formatowanie przedziału czasowego np. "6-7"
-           Activities = g.ToList() // Lista aktywności w danej godzinie
-       })
-       .Where(g => g.Activities.Any(a => a != null)) // Pomijamy godziny, gdzie wszystkie aktywności są null
-       .ToList();
-
-
-
-
-                return trainingWeek;
-                //return await _TrainingRepository.Find().ToListAsync();
+                return new FindTrainingsDto
+                {
+                    CurrentWeekItems = currentWeekHours,
+                    NextWeekItems = nextWeekHours
+                };
             }
             catch (Exception e)
             {
                 throw e;
-                
             }
         }
-        public  DateTime StartOfWeek( DateTime dt, DayOfWeek startOfWeek)
+
+        private List<HourlyActivities> GroupTrainingsByHourAndDay(List<Training> trainings)
+        {
+            // Grupowanie treningów po godzinie i dniu tygodnia
+            var groupedActivities = trainings
+                .Where(x => x.DateFrom.HasValue)
+                .GroupBy(x => new
+                {
+                    Hour = x.DateFrom.Value.Hour,
+                    DayOfWeek = x.DateFrom.Value.DayOfWeek
+                })
+                .ToDictionary(g => new { g.Key.Hour, g.Key.DayOfWeek }, g => g.ToList());
+
+            // Generowanie pełnych przedziałów czasowych od 6:00 do 20:00 dla każdego dnia tygodnia
+            var hours = Enumerable.Range(6, 14)
+                .Select(hour => new HourlyActivities
+                {
+                    Time = $"{hour}:00 - {hour + 1}:00",
+                    Activities = Enumerable.Range(0, 7)
+                        .Select(dayIndex =>
+                        {
+                            var dayOfWeek = (DayOfWeek)dayIndex;
+                            return groupedActivities.TryGetValue(new { Hour = hour, DayOfWeek = dayOfWeek }, out var activities)
+                                ? activities.FirstOrDefault()  // We assume one activity per hour per day; if multiple, handle accordingly
+                                : null;
+                        })
+                        .ToList()
+                })
+                .Where(h => h.Activities.Any(a => a != null)) 
+                .ToList();
+
+            return hours;
+        }
+
+        public DateTime StartOfWeek(DateTime dt, DayOfWeek startOfWeek)
         {
             int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
             return dt.AddDays(-1 * diff).Date;
         }
+    }
 
+    public class FindTrainingsDto
+    {
+        public List<HourlyActivities> CurrentWeekItems { get; set; }
+        public List<HourlyActivities> NextWeekItems { get; set; }
+    }
+
+    public class HourlyActivities
+    {
+        public string Time { get; set; }
+        public List<Training?> Activities { get; set; } = new List<Training?>();
     }
 }

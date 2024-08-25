@@ -49,13 +49,22 @@ namespace SRT.Controllers
             return Ok(new GenericResponse<bool>(result));
         }
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<TrainingWeek>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<FindTrainingsDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 
         public async Task<IActionResult> Find(FindTrainingCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(new GenericResponse<TrainingWeek>(result));
+            return Ok(new GenericResponse<FindTrainingsDto>(result));
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<bool>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteAll(DeleteAllTrainingCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(new GenericResponse<bool>(result));
         }
     }
 }
