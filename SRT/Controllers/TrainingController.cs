@@ -57,5 +57,14 @@ namespace SRT.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(new GenericResponse<TrainingWeek>(result));
         }
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<Training>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
+        public async Task<IActionResult> Get(GetTrainingCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(new GenericResponse<Training>(result));
+        }
     }
 }

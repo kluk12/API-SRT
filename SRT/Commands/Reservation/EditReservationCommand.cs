@@ -10,18 +10,7 @@ namespace SRT.Commands
     public class EditReservationCommand : IRequest<Reservation>
     {
         public int Id { get; set; }
-        public decimal Price { get; set; } = 0m;
-        public DateTime? Remove { get; set; }
-        public DateTime? Create { get; set; }
-        public int? BeforStartTimeInHour { get; set; }
-        public int? Summary { get; set; }
-        public int? NumberPeopleNo { get; set; }
-        public int? WhenCloseTraining { get; set; }
-        public int? LocationId { get; set; }
-        public int? Type { get; set; }
-        public bool? GeneratorId { get; set; }
-        public bool? Paid { get; set; }
-        public int? TrainingId { get; set; }
+        public bool Remove { get; set; }=false;
 
     }
 
@@ -40,32 +29,23 @@ namespace SRT.Commands
             try
             {
                 #region validation
-                //if (!_yardRepository.Find().Any(x => x.Id == request.StationFromId))
+                //if (!_ReservationRepository.Find().Any(x => x.Id == request.StationFromId))
                 //    throw new ApiException(string.Format(Resource.Yard_with_id_0_not_found, request.StationFromId));
 
                 #endregion
 
                 var item = await _ReservationRepository.Get(request.Id);
                 if (item == null)
-                    throw new ApiException("null id");
+                    throw new ApiException("Rezerwacja nie istnije");
 
-                item.BeforStartTimeInHour = request.BeforStartTimeInHour;
-                item.Create = request.Create;
-                item.GeneratorId = request.GeneratorId;
-                item.LocationId = request.LocationId;
-                item.NumberPeopleNo = request.NumberPeopleNo;
-                item.Paid = request.Paid;
-                item.Price = request.Price;
-                item.Remove = request.Remove;
-                item.Summary = request.Summary;
-                item.TrainingId = request.TrainingId;
-                item.LocationId = request.LocationId;
-                item.Type = request.Type;
-                item.GeneratorId = request.GeneratorId;
-                item.Paid = request.Paid;
-                item.TrainingId = request.TrainingId;
-
-                await _ReservationRepository.Update(item);
+                if (request.Remove)
+                {
+                    item.IsDelete = request.Remove;
+                    item.Remove = DateTime.Now;
+                    await _ReservationRepository.Update(item);
+                    return item;
+                }
+               
                 return item;
             }
             catch (Exception e)

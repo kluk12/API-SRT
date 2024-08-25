@@ -26,10 +26,6 @@ namespace SRT.DBModels
             : base(options)
         {
         }
-  
-        
-        
-        
         
 
         //dotnet ef migrations add Name --project SRT

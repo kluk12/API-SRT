@@ -73,7 +73,6 @@ namespace SRT.Commands
 
 
 
-
                 return trainingWeek;
                 //return await _TrainingRepository.Find().ToListAsync();
             }
