@@ -53,15 +53,25 @@ namespace SRT.Commands
                 trainingWeek.NextWeekItems = nextWeekItems;
                 //todo group by day
                 // Grupowanie po godzinie z DateFrom
-                var groupedByHour = currentWeekItems
-                    .GroupBy(x => x.DateFrom.Value.Hour)
-                    .Select(g => new
-                    {
-                        Hour = g.Key,
-                        Items = g.ToList()
-                    })
-                    .OrderBy(g => g.Hour) // Sortowanie po godzinie
-                    .ToList();
+
+
+                // Grupa godzin, do której przypiszemy treningi
+                var groupedActivities = currentWeekItems
+       .Where(x => x.DateFrom.HasValue) // Pomijamy elementy, gdzie DateFrom jest null
+       .GroupBy(x => new
+       {
+           Hour = x.DateFrom.Value.Hour, // Grupujemy po godzinie
+           NextHour = x.DateFrom.Value.Hour + 1 // Dodajemy 1 do godziny dla przedziału godzinowego
+       })
+       .Select(g => new
+       {
+           Time = $"{g.Key.Hour}-{g.Key.NextHour}", // Formatowanie przedziału czasowego np. "6-7"
+           Activities = g.ToList() // Lista aktywności w danej godzinie
+       })
+       .Where(g => g.Activities.Any(a => a != null)) // Pomijamy godziny, gdzie wszystkie aktywności są null
+       .ToList();
+
+
 
 
                 return trainingWeek;
