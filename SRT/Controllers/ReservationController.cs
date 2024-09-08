@@ -59,13 +59,13 @@ namespace SRT.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(new GenericResponse<List<Reservation>> (result));
         } [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int?))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 
         public async Task<IActionResult> IsReserved(IsReservedCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(new GenericResponse<bool> (result));
+            return Ok(new GenericResponse<int?> (result));
         } [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<List<Reservation>>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -74,6 +74,15 @@ namespace SRT.Controllers
         {
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(new GenericResponse<List<Reservation>> (result));
+        }
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GenericResponse<bool>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
+        public async Task<IActionResult> UnReservation(DeleteReservationCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(new GenericResponse<bool>(result));
         }
     }
 }
