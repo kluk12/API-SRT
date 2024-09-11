@@ -39,6 +39,7 @@ namespace SRT.Commands
                 //    throw new ApiException(string.Format(Resource.Yard_with_id_0_not_found, request.StationFromId));
                 #endregion
 
+                
                 Training item = new Training()
                 {
                     BeforStartTimeInHour = request.BeforStartTimeInHour,

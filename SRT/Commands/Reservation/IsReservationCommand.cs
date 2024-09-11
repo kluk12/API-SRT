@@ -7,13 +7,13 @@ using SRT.DBModels.Repos;
 
 namespace SRT.Commands
 {
-    public class IsReservedCommand : IRequest<bool>
+    public class IsReservedCommand : IRequest<int?>
     {
         public int? TrainingId { get; set; }
         public int? UserId { get; set; }
     }
 
-    public class IsReservedCommandHandler : IRequestHandler<IsReservedCommand, bool>
+    public class IsReservedCommandHandler : IRequestHandler<IsReservedCommand, int?>
     {
         private readonly IReservationRepository _ReservationRepository;
 
@@ -22,12 +22,12 @@ namespace SRT.Commands
             _ReservationRepository = reservationRepository;
         }
 
-        public async Task<bool> Handle(IsReservedCommand request, CancellationToken cancellationToken)
+        public async Task<int?> Handle(IsReservedCommand request, CancellationToken cancellationToken)
         {
             try
             {
 
-                return  _ReservationRepository.Find().Any(x => x.UserId == request.UserId && x.TrainingId == request.TrainingId);
+                return  _ReservationRepository.Find().FirstAsync(x => x.UserId == request.UserId && x.TrainingId == request.TrainingId)?.Id;
             }
             catch (Exception e)
             {
