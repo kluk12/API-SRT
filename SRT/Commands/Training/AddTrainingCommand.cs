@@ -48,6 +48,7 @@ namespace SRT.Commands
                     Price = request.Price,
                     LocationId = request.LocationId,
                     Type = request.Type,
+                    NumberPeople = request.NumberPeople,
                     AdditionalInformation = request.AdditionalInformation,
                 };
 

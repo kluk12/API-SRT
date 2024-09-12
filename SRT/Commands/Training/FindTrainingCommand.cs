@@ -28,7 +28,7 @@ namespace SRT.Commands
                 var startOfWeek = StartOfWeek(DateTime.Now, DayOfWeek.Monday);
                 var endOfWeek = startOfWeek.AddDays(7).AddSeconds(-1);
 
-                var currentWeekItems = await _TrainingRepository.Find()
+                var currentWeekItems = await _TrainingRepository.Find().Include(x => x.Reservations)
                     .Where(x => x.DateFrom.HasValue && x.DateTo.HasValue &&
                                 x.DateFrom.Value >= startOfWeek && x.DateTo.Value <= endOfWeek)
                     .ToListAsync();

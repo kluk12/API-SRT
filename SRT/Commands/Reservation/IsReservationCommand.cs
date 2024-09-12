@@ -26,8 +26,9 @@ namespace SRT.Commands
         {
             try
             {
+                var query = await _ReservationRepository.Find().FirstAsync(x => x.UserId == request.UserId && x.TrainingId == request.TrainingId);
 
-                return  _ReservationRepository.Find().FirstAsync(x => x.UserId == request.UserId && x.TrainingId == request.TrainingId)?.Id;
+                return query?.Id;
             }
             catch (Exception e)
             {

@@ -29,7 +29,7 @@ namespace SRT.Commands
                 if (request.Id == null)
                     throw new ApiException("");
 
-                await _ReservationRepository.Delete(request.Id);
+              var a =  await _ReservationRepository.Delete(request.Id);
                 return true;
             }
             catch (Exception e)

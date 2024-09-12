@@ -20,6 +20,7 @@ namespace SRT.DBModels
         public int? Type { get; set; }
         public string? AdditionalInformation { get; set; }
         public int? GeneratorId { get; set; }
+        public int? ReservationsCount { get { return this.Reservations.Count(); }  }
 
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 
