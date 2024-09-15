@@ -17,6 +17,7 @@ namespace SRT.DBModels
         public decimal FixedCosts { get; set; } = 0m;
         public int? WhenCloseTraining { get; set; }
         public int? LocationId { get; set; }
+        public string? Title { get; set; }
         public int? Type { get; set; }
         public string? AdditionalInformation { get; set; }
         public int? GeneratorId { get; set; }

@@ -17,6 +17,7 @@ namespace SRT.Commands
         public int? LocationId { get; set; }
         public int? Type { get; set; }
         public string? AdditionalInformation { get; set; }
+        public string? Title { get; set; }
 
     }
 
@@ -47,6 +48,7 @@ namespace SRT.Commands
                     DateTo = request.DateTo,
                     Price = request.Price,
                     LocationId = request.LocationId,
+                    Title = request.Title,
                     Type = request.Type,
                     NumberPeople = request.NumberPeople,
                     AdditionalInformation = request.AdditionalInformation,
